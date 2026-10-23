@@ -1,0 +1,1 @@
+RoverSense: I trained an Isolation Forest on rover sensor telemetry in Python, then exported all 64 trees to run live in the browser — bit-identical to scikit-learn, no backend. It catches frozen probes, sensor drift, EMI spikes, dropouts, and even a real gas leak in seconds. Live demo: https://qasimjethwa.github.io/roversense/

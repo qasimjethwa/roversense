@@ -1,0 +1,1 @@
+Your rover's sensors are lying to you. RoverSense trains an isolation forest on rover telemetry in Python — then exports every single tree to run live in the browser. No backend. It catches frozen probes, drifting sensors, even gas leaks — in seconds. Code and live demo at the link below.
