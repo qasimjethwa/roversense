@@ -1,0 +1,161 @@
+{
+  "generated_at": "2026-10-23T10:21:27.595542+00:00",
+  "model": {
+    "algorithm": "IsolationForest",
+    "n_estimators": 64,
+    "max_samples": 1024,
+    "n_features": 18,
+    "feature_names": [
+      "battery_v_dev_base",
+      "battery_v_stillness_12s",
+      "battery_v_abs_d1",
+      "motor_current_dev_base",
+      "motor_current_stillness_12s",
+      "motor_current_abs_d1",
+      "chassis_temp_dev_base",
+      "chassis_temp_stillness_12s",
+      "chassis_temp_abs_d1",
+      "ph_dev_base",
+      "ph_stillness_12s",
+      "ph_abs_d1",
+      "soil_moisture_dev_base",
+      "soil_moisture_stillness_12s",
+      "soil_moisture_abs_d1",
+      "gas_mq_dev_base",
+      "gas_mq_stillness_12s",
+      "gas_mq_abs_d1"
+    ],
+    "train_samples": 3600
+  },
+  "detection": {
+    "if_threshold": 0.5458422048402415,
+    "ewma_alpha": 0.3,
+    "min_dwell_s": 3,
+    "guardrail_z": 8.0,
+    "layers": {
+      "ML": "EWMA(0.3) IF score > thr, 3s dwell",
+      "Z": "|x-med|/MAD > 8",
+      "STUCK": "stillness > 4.5 for 12s",
+      "SPIKE": "|d1|/MAD(d1) > 8",
+      "NAN": "any channel NaN"
+    },
+    "note": "ML + deterministic guardrails from the same training stats; identical logic in docs/"
+  },
+  "threshold": 0.5458422048402415,
+  "export_stats": {
+    "base_median": [
+      12.052498293449817,
+      2.8694804178779068,
+      29.315047948463945,
+      6.851127790383986,
+      0.27708176655943484,
+      0.04021158660597572
+    ],
+    "base_mad_x": [
+      0.18897268364983333,
+      1.2414818554848095,
+      0.8476440437114459,
+      0.029091674761019704,
+      0.021710314357307414,
+      0.003859359150071441
+    ],
+    "base_mad_d1": [
+      0.01459644401288962,
+      0.12032956458783062,
+      0.07975858461689356,
+      0.01805009901526411,
+      0.003790758632099489,
+      0.005744452346248846
+    ]
+  },
+  "overall": {
+    "precision": 0.9858906525573192,
+    "recall": 0.7554054054054054,
+    "f1": 0.8553940321346595,
+    "roc_auc": 0.8584676185619582
+  },
+  "per_fault": {
+    "pH probe freeze": {
+      "kind": "freeze",
+      "channel": "ph",
+      "recall": 0.825,
+      "peak_score": 0.5653309155697643,
+      "duration_s": 120,
+      "detect_delay_s": 21,
+      "first_layer": "STUCK"
+    },
+    "gas sensor drift": {
+      "kind": "drift",
+      "channel": "gas_mq",
+      "recall": 0.9533333333333334,
+      "peak_score": 0.5866710015727756,
+      "duration_s": 150,
+      "detect_delay_s": 7,
+      "first_layer": "Z"
+    },
+    "current-line EMI spikes": {
+      "kind": "spike",
+      "channel": "motor_current",
+      "recall": 0.25,
+      "peak_score": 0.6347962335554043,
+      "duration_s": 200,
+      "detect_delay_s": 17,
+      "first_layer": "SPIKE"
+    },
+    "moisture sensor dropout": {
+      "kind": "dropout",
+      "channel": "soil_moisture",
+      "recall": 1.0,
+      "peak_score": 0.577761853066889,
+      "duration_s": 90,
+      "detect_delay_s": 0,
+      "first_layer": "NAN"
+    },
+    "gas leak event": {
+      "kind": "gas_event",
+      "channel": "gas_mq",
+      "recall": 0.9833333333333333,
+      "peak_score": 0.644238825661196,
+      "duration_s": 180,
+      "detect_delay_s": 3,
+      "first_layer": "Z"
+    }
+  },
+  "episodes": [
+    {
+      "name": "pH probe freeze",
+      "start": 250,
+      "end": 370,
+      "channel": "ph",
+      "kind": "freeze"
+    },
+    {
+      "name": "gas sensor drift",
+      "start": 520,
+      "end": 670,
+      "channel": "gas_mq",
+      "kind": "drift"
+    },
+    {
+      "name": "current-line EMI spikes",
+      "start": 820,
+      "end": 1020,
+      "channel": "motor_current",
+      "kind": "spike"
+    },
+    {
+      "name": "moisture sensor dropout",
+      "start": 1150,
+      "end": 1240,
+      "channel": "soil_moisture",
+      "kind": "dropout"
+    },
+    {
+      "name": "gas leak event",
+      "start": 1420,
+      "end": 1600,
+      "channel": "gas_mq",
+      "kind": "gas_event"
+    }
+  ]
+}
