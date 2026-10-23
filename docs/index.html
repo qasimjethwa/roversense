@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RoverSense — ML Anomaly Detection for Rover Telemetry</title>
+<meta name="description" content="An Isolation Forest trained in Python on rover sensor telemetry, exported tree-by-tree to JSON, running live in your browser. No backend.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="aurora" aria-hidden="true"></div>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="logo">RS</div>
+    <div>
+      <div class="wordmark">ROVERSENSE</div>
+      <div class="tagline">ML anomaly detection for rover sensor telemetry</div>
+    </div>
+  </div>
+  <div class="topmeta">
+    <div class="clock"><span class="dim">T+</span><span id="clock">00:00:00</span></div>
+    <div id="statusPill" class="pill ok"><span class="dot"></span><span id="statusText">NOMINAL</span></div>
+    <a class="ghlink" href="https://github.com/qasimjethwa/roversense" target="_blank" rel="noopener">GitHub ↗</a>
+  </div>
+</header>
+
+<main>
+  <section class="grid">
+    <div class="channels" id="channels"><!-- channel cards injected --></div>
+
+    <aside class="side">
+      <div class="panel gauge-panel">
+        <div class="panel-title">ANOMALY SCORE <span class="live"><span class="blink"></span>LIVE</span></div>
+        <canvas id="gauge" width="300" height="190"></canvas>
+        <div class="gauge-read"><span id="scoreNum">0</span><span class="dim">/100</span></div>
+        <div class="gauge-sub">Isolation Forest · threshold <span id="thrLabel">–</span></div>
+        <div class="layers" id="layerChips"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">FAULT INJECTION <span class="dim">— break the rover</span></div>
+        <div class="fault-grid" id="faultBtns">
+          <button data-fault="freeze">pH probe freeze</button>
+          <button data-fault="drift">Gas sensor drift</button>
+          <button data-fault="spikes">EMI spikes</button>
+          <button data-fault="dropout">Moisture dropout</button>
+          <button data-fault="gasleak" class="danger">Gas leak</button>
+        </div>
+        <div class="fault-note" id="faultNote">Nominal telemetry streaming at 5× real time. Inject a fault and watch the detector catch it.</div>
+      </div>
+
+      <div class="panel log-panel">
+        <div class="panel-title">EVENT LOG</div>
+        <div class="log" id="eventLog"><div class="log-empty">No incidents yet. The detector is watching.</div></div>
+      </div>
+    </aside>
+  </section>
+
+  <section class="panel how">
+    <div class="panel-title">HOW IT WORKS</div>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><div><b>Train in Python.</b> An IsolationForest learns the nominal envelope of 6 rover sensors (battery, motor current, chassis temp, pH, soil moisture, gas) from simulated testbed telemetry — 18 context features, not raw values.</div></div>
+      <div class="step"><div class="n">2</div><div><b>Export every tree.</b> All 64 trees — every split, threshold and leaf — are serialized to <span class="mono">model.json</span>. Deterministic guardrails (robust-z, stuck-value, transient, dropout) ship from the same training stats.</div></div>
+      <div class="step"><div class="n">3</div><div><b>Run it in the browser.</b> This page scores the live stream with the exact exported forest — verified bit-identical to scikit-learn (max diff 1.1e-16). No server, no API, no backend.</div></div>
+    </div>
+  </section>
+
+  <section class="panel modelcard">
+    <div class="panel-title">MODEL CARD <span class="dim">— measured on a labeled 30-min fault stream</span></div>
+    <div class="metrics" id="metrics"><div class="dim">loading metrics…</div></div>
+    <div class="perfault" id="perFault"></div>
+  </section>
+</main>
+
+<footer>
+  <span>RoverSense · trained with scikit-learn, deployed as JSON</span>
+  <span class="dim">Built by <a href="https://github.com/qasimjethwa">qasimjethwa</a> · demo runs fully client-side</span>
+</footer>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
